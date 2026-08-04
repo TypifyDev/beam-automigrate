@@ -65,6 +65,7 @@ where
 
 import Control.Exception
 import qualified Control.Exception as E
+import Control.Monad (when, forM_)
 import Control.Monad.Except
 import Control.Monad.Identity (runIdentity)
 import Control.Monad.State.Strict
