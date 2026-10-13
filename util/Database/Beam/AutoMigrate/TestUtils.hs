@@ -1,10 +1,11 @@
 {-# Language OverloadedStrings #-}
+{-# LANGUAGE PackageImports #-}
 module Database.Beam.AutoMigrate.TestUtils where
 
 import Control.Exception (bracket)
 import Data.Pool (withResource)
 import Data.Typeable
-import Database.PostgreSQL.Simple as Pg
+import "postgresql-simple" Database.PostgreSQL.Simple as Pg
 import Gargoyle.PostgreSQL.Connect (withDb)
 import Test.Tasty.Options
 

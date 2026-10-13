@@ -1,5 +1,6 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -222,7 +223,7 @@ type AnnotatedDatabaseSettings be db = db (AnnotatedDatabaseEntity be db)
 --
 -- An 'AnnotatedDatabaseEntityDescriptor' is not a concrete type, but rather a data family provided by the
 -- 'IsAnnotatedDatabaseEntity'.
-data AnnotatedDatabaseEntity be (db :: (* -> *) -> *) entityType where
+data AnnotatedDatabaseEntity be (db :: (Type -> Type) -> Type) entityType where
   AnnotatedDatabaseEntity ::
     (IsAnnotatedDatabaseEntity be entityType, IsDatabaseEntity be entityType) =>
     AnnotatedDatabaseEntityDescriptor be entityType ->
@@ -230,7 +231,7 @@ data AnnotatedDatabaseEntity be (db :: (* -> *) -> *) entityType where
     AnnotatedDatabaseEntity be db entityType
 
 class IsDatabaseEntity be entityType => IsAnnotatedDatabaseEntity be entityType where
-  data AnnotatedDatabaseEntityDescriptor be entityType :: *
+  data AnnotatedDatabaseEntityDescriptor be entityType :: Type
   type AnnotatedDatabaseEntityDefaultRequirements be entityType :: Constraint
   type AnnotatedDatabaseEntityRegularRequirements be entityType :: Constraint
 
@@ -288,7 +289,7 @@ type TableSchema tbl =
   tbl (TableFieldSchema tbl)
 
 -- | A schema for a field within a given table
-data TableFieldSchema (tbl :: (* -> *) -> *) ty where
+data TableFieldSchema (tbl :: (Type -> Type) -> Type) ty where
   TableFieldSchema ::
     { tableFieldName :: ColumnName,
       tableFieldSchema :: FieldSchema ty
@@ -449,7 +450,7 @@ annotateTableFields modFields =
 -- > defaultsTo (val_ $ Just 10)
 defaultsTo ::
   (HasColumnType ty, HasSqlValueSyntax Pg.PgValueSyntax ty) =>
-  (forall ctx s. Beam.QGenExpr ctx Postgres s ty) ->
+  (forall (ctx :: Type) s. Beam.QGenExpr ctx Postgres s ty) ->
   FieldModification (TableFieldSchema tbl) ty
 defaultsTo tyVal = FieldModification $ \old ->
   case tableFieldSchema old of
@@ -464,7 +465,7 @@ defaultsTo tyVal = FieldModification $ \old ->
 pgDefaultConstraint ::
   forall ty.
   (HasColumnType ty, HasSqlValueSyntax Pg.PgValueSyntax ty) =>
-  (forall ctx s. Beam.QGenExpr ctx Postgres s ty) ->
+  (forall (ctx :: Type) s. Beam.QGenExpr ctx Postgres s ty) ->
   DefaultConstraint
 pgDefaultConstraint tyVal =
   let syntaxFragment = T.pack . displaySyntax . Pg.fromPgExpression $ defaultTo_ tyVal
@@ -494,7 +495,7 @@ pgDefaultConstraint tyVal =
 -- $specifyingTableConstraints
 -- Is it possible to annotate an 'AnnotatedDatabaseEntity' with @UNIQUE@ and @FOREIGN KEY@ constraints.
 
-data UniqueConstraint (tbl :: ((* -> *) -> *)) where
+data UniqueConstraint (tbl :: ((Type -> Type) -> Type)) where
   -- | Use this to \"tag\" a standard Beam 'TableField' selector or 'PrimaryKey'.
   U :: HasColumnNames entity tbl => (tbl (Beam.TableField tbl) -> entity) -> UniqueConstraint tbl
 
@@ -539,7 +540,7 @@ mkUniqueConstraint e us =
 -- Specifying FK constrainst
 --
 
-data ForeignKeyConstraint (tbl :: ((* -> *) -> *)) (tbl' :: ((* -> *) -> *)) where
+data ForeignKeyConstraint (tbl :: ((Type -> Type) -> Type)) (tbl' :: ((Type -> Type) -> Type)) where
   References ::
     Beam.Beamable (PrimaryKey tbl') =>
     (tbl (Beam.TableField tbl) -> PrimaryKey tbl' (Beam.TableField tbl)) ->

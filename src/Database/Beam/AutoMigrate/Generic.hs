@@ -35,15 +35,15 @@ import Control.Lens ((^.))
 --- Machinery to derive a 'Schema' from a 'DatabaseSettings'.
 --
 
-class GSchema be db (anns :: [Annotation]) (x :: * -> *) where
+class GSchema be db (anns :: [Annotation]) (x :: Type -> Type) where
   gSchema :: AnnotatedDatabaseSettings be db -> Proxy anns -> x p -> Schema
 
 -- Table-specific classes
 
-class GTables be db (anns :: [Annotation]) (x :: * -> *) where
+class GTables be db (anns :: [Annotation]) (x :: Type -> Type) where
   gTables :: AnnotatedDatabaseSettings be db -> Proxy anns -> x p -> (Tables, Sequences)
 
-class GTableEntry (be :: *) (db :: DatabaseKind) (anns :: [Annotation]) (tableFound :: Bool) (x :: * -> *) where
+class GTableEntry (be :: Type) (db :: DatabaseKind) (anns :: [Annotation]) (tableFound :: Bool) (x :: Type -> Type) where
   gTableEntries ::
     AnnotatedDatabaseSettings be db ->
     Proxy anns ->
@@ -51,7 +51,7 @@ class GTableEntry (be :: *) (db :: DatabaseKind) (anns :: [Annotation]) (tableFo
     x p ->
     ([(TableName, Table)], Sequences)
 
-class GTable be db (x :: * -> *) where
+class GTable be db (x :: Type -> Type) where
   gTable :: AnnotatedDatabaseSettings be db -> x p -> Table
 
 -- Enumerations-specific classes
@@ -67,7 +67,7 @@ data GenSequencesForSerial
   = GenSequences
   | NoGenSequences
 
-class GColumns (genSeqs :: GenSequencesForSerial) (x :: * -> *) where
+class GColumns (genSeqs :: GenSequencesForSerial) (x :: Type -> Type) where
   gColumns :: Proxy genSeqs -> TableName -> x p -> (Columns, Sequences)
 
 class GTableConstraintColumns be db x where

@@ -398,7 +398,7 @@ pgTypeToColumnType extensionTypeData oid width
   | Pg.typoid Pg.time == oid =
     Just (SqlStdType $ timeType Nothing False)
   | Pg.typoid Pg.timestamp == oid =
-    Just (SqlStdType $timestampType Nothing False)
+    Just (SqlStdType $ timestampType Nothing False)
   | Pg.typoid Pg.timestamptz == oid =
     Just (SqlStdType $ timestampType Nothing True)
   | Pg.typoid Pg.json == oid =

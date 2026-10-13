@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | This is a module which adapts and simplifies certain things normally provided by "beam-migrate", but
@@ -10,6 +11,7 @@ module Database.Beam.AutoMigrate.Compat where
 import Data.Aeson (FromJSON, ToJSON)
 import Data.ByteString (ByteString)
 import Data.Int
+import Data.Kind (Type)
 import qualified Data.Map.Strict as M
 import Data.Scientific (Scientific)
 import Data.Text (Text)
@@ -49,11 +51,11 @@ class HasSchemaConstraints ty where
 class HasSchemaConstraints' (nullary :: Bool) ty where
   schemaConstraints' :: Proxy nullary -> Proxy ty -> SchemaConstraint ty
 
-type family SchemaConstraint (k :: *) where
+type family SchemaConstraint (k :: Type) where
   SchemaConstraint (Beam.TableEntity e) = TableConstraints
   SchemaConstraint (Beam.TableField e t) = ColumnConstraints
 
-type family IsMaybe (k :: *) :: Bool where
+type family IsMaybe (k :: Type) :: Bool where
   IsMaybe (Maybe x) = 'True
   IsMaybe (Beam.TableField t (Maybe x)) = 'True
   IsMaybe (Beam.TableField t _) = 'False
@@ -283,13 +285,17 @@ instance HasCompanionSequence' 'True (SqlSerial a) where
 
 instance (Show a, Typeable a, Enum a, Bounded a) => HasColumnType (PgEnum a) where
   defaultColumnType (Proxy :: (Proxy (PgEnum a))) =
-    -- Postgres converts enumeration types to lowercase, so we need to call 'toLower' here.
-    PgSpecificType (PgEnumeration $ EnumerationName (T.toLower . T.pack $ showsTypeRep (typeRep (Proxy @a)) mempty))
+    PgSpecificType (PgEnumeration (pgEnumName (Proxy @a)))
 
-  defaultEnums p@(Proxy :: (Proxy (PgEnum a))) =
-    let (PgSpecificType (PgEnumeration ty)) = defaultColumnType p
+  defaultEnums (Proxy :: (Proxy (PgEnum a))) =
+    let ty = pgEnumName (Proxy @a)
         vals = Enumeration $ map (T.pack . show) ([minBound .. maxBound] :: [a])
      in M.singleton ty vals
+
+-- | Postgres converts enumeration types to lowercase, so we call 'toLower' here.
+pgEnumName :: Typeable a => Proxy a -> EnumerationName
+pgEnumName p =
+  EnumerationName (T.toLower . T.pack $ showsTypeRep (typeRep p) mempty)
 
 -- For now a `DbEnum` is isomorphic to a `varCharType`, as we don't have enough information on the Postgres
 -- side to reconstruct the enumerated values.

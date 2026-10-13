@@ -72,7 +72,7 @@ import Control.Monad.State.Strict
 import Data.Bifunctor (first)
 import Data.Function ((&))
 import Data.Int (Int64)
-import Data.List (foldl')
+import Data.Kind (Type)
 import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import Data.Proxy
@@ -114,7 +114,7 @@ import qualified Text.Pretty.Simple as PS
 
 -- | Simple synonym to make the signatures for 'defaultAnnotatedDbSettings' and 'fromAnnotatedDbSettings'
 -- less scary. From a user's standpoint, there is nothing you have to implement.
-type ToAnnotated (be :: *) (db :: DatabaseKind) e1 e2 =
+type ToAnnotated (be :: Type) (db :: DatabaseKind) e1 e2 =
   ( Generic (db (e1 be db)),
     Generic (db (e2 be db)),
     Database be db,
@@ -130,7 +130,7 @@ type ToAnnotated (be :: *) (db :: DatabaseKind) e1 e2 =
 
 -- | Simple class to make the signatures for 'defaultAnnotatedDbSettings' and 'fromAnnotatedDbSettings'
 -- less scary. From a user's standpoint, there is nothing you have to implement.
-type FromAnnotated (be :: *) (db :: DatabaseKind) e1 e2 =
+type FromAnnotated (be :: Type) (db :: DatabaseKind) e1 e2 =
   ( Generic (db (e1 be db)),
     Generic (db (e2 be db)),
     Database be db,

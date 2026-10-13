@@ -25,7 +25,6 @@ import Data.String
 import Data.String.Conv (toS)
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Typeable
 import Database.Beam.Backend.SQL (BeamSqlBackendSyntax)
 import Database.Beam.Backend.SQL.AST qualified as AST
 import Database.Beam.Postgres (Pg, Postgres)
@@ -205,12 +204,12 @@ instance IsString ExtensionTypeName where
 -- Newtype wrapper to be able to derive appropriate 'HasDefaultSqlDataType' for /Postgres/ enum types.
 newtype PgEnum a
   = PgEnum a
-  deriving (Show, Eq, Typeable, Enum, Bounded, Generic)
+  deriving (Show, Eq, Enum, Bounded, Generic)
 
 -- Newtype wrapper to be able to derive appropriate 'HasDefaultSqlDataType' for /textual/ enum types.
 newtype DbEnum a
   = DbEnum a
-  deriving (Show, Eq, Typeable, Enum, Bounded, Generic)
+  deriving (Show, Eq, Enum, Bounded, Generic)
 
 newtype ConstraintName = ConstraintName { unConsraintName :: Text }
   deriving (IsString, Eq, Ord, Show, NFData)

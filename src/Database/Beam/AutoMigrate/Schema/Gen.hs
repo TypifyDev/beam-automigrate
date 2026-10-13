@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE PackageImports #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ViewPatterns #-}
@@ -39,8 +40,8 @@ import qualified Database.Beam.Postgres as Pg
 import qualified Database.Beam.Postgres.Syntax as Pg
 import Database.Beam.Query (currentTimestamp_, val_)
 import GHC.Generics
-import Test.QuickCheck
-import Test.QuickCheck.Instances.Time ()
+import "QuickCheck" Test.QuickCheck
+import "quickcheck-instances" Test.QuickCheck.Instances.Time ()
 import Text.Printf (printf)
 
 --

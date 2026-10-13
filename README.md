@@ -65,7 +65,7 @@ Deriving an `AnnotatedDatabaseSettings` for a Haskell database type is a matter 
 > import Data.Proxy (Proxy(..))
 > import Database.Beam.Postgres
 > import Database.Beam.Schema
-> import Database.Beam (val_, primaryKey)
+> import Database.Beam (val_)
 > import qualified Database.Beam.AutoMigrate as BA
 > import Database.Beam.AutoMigrate.TestUtils
 > import Database.PostgreSQL.Simple as Pg
@@ -129,7 +129,7 @@ ambiguity). To do this, we can piggyback on the familiar API from `beam-core`. F
 ```haskell
 
 > annotatedDB :: BA.AnnotatedDatabaseSettings Postgres ForecastDB
-> annotatedDB = BA.defaultAnnotatedDbSettings defaultDbSettings `withDbModification` dbModification
+> annotatedDB = forecastDB `withDbModification` dbModification
 >   { dbCities =
 >       BA.annotateTableFields tableModification { ctCapital = BA.defaultsTo $ val_ False }
 >         <> BA.uniqueConstraintOn [BA.U ctCity, BA.U ctLocation]

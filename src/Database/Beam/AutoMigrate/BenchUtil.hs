@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PackageImports #-}
 
 module Database.Beam.AutoMigrate.BenchUtil
   ( SpineStrict (..)
@@ -17,8 +18,8 @@ import Database.Beam.AutoMigrate
 import Database.Beam.AutoMigrate.Schema.Gen (genSimilarSchemas)
 import qualified Database.PostgreSQL.Simple as Pg
 import System.Random.SplitMix (mkSMGen)
-import Test.QuickCheck.Gen
-import Test.QuickCheck.Random
+import "QuickCheck" Test.QuickCheck.Gen
+import "QuickCheck" Test.QuickCheck.Random
 
 newtype SpineStrict = SS {unSS :: Diff}
 
